@@ -1,33 +1,29 @@
 package com.group.libraryapp.controller.user;
 
-import com.group.libraryapp.domain.user.User;
 import com.group.libraryapp.dto.user.request.UserCreateRequest;
 import com.group.libraryapp.dto.user.request.UserUpdateRequest;
 import com.group.libraryapp.dto.user.response.UserResponse;
+import com.group.libraryapp.service.fruit.FruitService;
+import com.group.libraryapp.service.user.UserService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController // api설정
+// usercontroller를 스프링 빈으로 등록시켜주는 역할을 한다.
+// 스프링 빈 안에 jdbcTemplate도 들어가 있음
 // 해당 restcontroller 덕분에 get 요청으로 자료 조회시
 // json형태로 자료를 반환해준다
 public class UserController {
 
-    private final JdbcTemplate jdbcTemplate;
+    private final UserService userService;
+    private final FruitService fruitService;
 
-    public UserController(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
-    @PostMapping("/user") // POST /user
-    public void saveUser(@RequestBody UserCreateRequest request) {
-        String sql = "INSERT INTO user (name, age) VALUES (?, ?)";
-        jdbcTemplate.update(sql, request.getName(), request.getAge());
+    public UserController(UserService userService, @Qualifier("appleService") FruitService fruitService) {
+        this.userService = userService;
+        this.fruitService = fruitService;
     }
 
     //    @GetMapping("/user")
@@ -43,37 +39,27 @@ public class UserController {
 //            }
 //        });
 //    }
-// 람다로 바꾼 경우
+    // C R U D 구현
+    @PostMapping("/user") // POST /user
+    public void saveUser(@RequestBody UserCreateRequest request) {
+        userService.saveUser(request);
+    }
+
     @GetMapping("/user")
     public List<UserResponse> getUsers() {
-        String sql = "SELECT * FROM user";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> {
-            long id = rs.getLong("id");
-            String name = rs.getString("name");
-            int age = rs.getInt("age");
-            return new UserResponse(id, name, age);
-        });
+        return userService.getUsers();
     }
+
 
     @PutMapping("/user")
     public void updateUser(@RequestBody UserUpdateRequest request) {
-
-
-        String sql = "UPDATE user SET name = ? WHERE id = ?";
-        jdbcTemplate.update(sql, request.getName(), request.getId());
+        userService.updateUser(request);
 
     }
 
     @DeleteMapping("/user")
     public void deleteUser(@RequestParam String name) {
-        String readSql = "SELECT * FROM user WHERE name = ?";
-        boolean isUserNotExist = jdbcTemplate.query(readSql, (rs, rowNum) -> 0, name).isEmpty();
-        if (isUserNotExist) {
-            throw new IllegalArgumentException();
-        }
-
-        String sql = "DELETE FROM user WHERE name = ?";
-        jdbcTemplate.update(sql, name);
+        userService.deleteUser(name);
     }
 
 }
