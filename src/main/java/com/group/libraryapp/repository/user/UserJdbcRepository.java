@@ -1,18 +1,17 @@
 package com.group.libraryapp.repository.user;
 
 import com.group.libraryapp.dto.user.response.UserResponse;
-import com.group.libraryapp.service.user.UserService;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository // 레포지토리를 스프링 빈으로 등록하는 어노테이션
-public class UserRepository {
+public class UserJdbcRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public UserRepository(JdbcTemplate jdbcTemplate) {
+    public UserJdbcRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
