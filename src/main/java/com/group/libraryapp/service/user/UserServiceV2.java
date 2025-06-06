@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,7 +56,10 @@ public class UserServiceV2 {
         if (!userRepository.existsByName(name)) {
             throw new IllegalArgumentException();
         }
-        User user = userRepository.findByName(name);
+        User user = userRepository.findByName(name)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없음"));
         userRepository.delete(user);
+
+
     }
 }
