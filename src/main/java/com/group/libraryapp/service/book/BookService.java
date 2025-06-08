@@ -53,14 +53,12 @@ public class BookService {
         userLoanHistoryRepository.save(new UserLoanHistory(user, book.getName()));
     }
 
+    @Transactional
     public void returnBook(BookReturnRequest request) {
         User user = userRepository.findByName(request.getUserName())
                 .orElseThrow(IllegalArgumentException::new);
 
-        UserLoanHistory history = userLoanHistoryRepository.findByUserIdAndBookName(user.getId(), request.getBookName())
-                .orElseThrow(IllegalArgumentException::new);
-        history.doReturn();
-        userLoanHistoryRepository.save(history);
+        user.returnBook(request.getBookName());
     }
 }
 

@@ -17,8 +17,8 @@ public class User {
     // age는 생략 가능 조건을 만족해서 @Column을 생략함
     private Integer age;
 
-    @OneToMany(mappedBy = "user")
-    private List<UserLoanHistory> userLoanHistoryList = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserLoanHistory> userLoanHistories = new ArrayList<>();
 
     protected User() {}
 
@@ -45,5 +45,20 @@ public class User {
     public void updateName(String name) {
         this.name = name;
     }
+
+    public void loanBook(String bookname) {
+        this.userLoanHistories.add(new UserLoanHistory(this, bookname));
+    }
+
+    public void returnBook(String bookName) {
+        UserLoanHistory targetHistory = this.userLoanHistories.stream()
+                .filter(history -> history.getBookName().equals(bookName))
+                .findFirst()
+                .orElseThrow(IllegalArgumentException::new);
+        targetHistory.doReturn();
+    }
+
+
+
 
 }
